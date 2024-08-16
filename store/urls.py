@@ -1,10 +1,15 @@
 from django.urls import path
-from.views import store
+from.views import *
+
 
 urlpatterns = [
 
+
    path('',store, name='store'), 
-   path('<slug:category_slug>/',store, name='store') 
+   path('<slug:category_slug>/',store, name='products_by_category') ,
+   path('<slug:category_slug>/<slug:product_slug>/',product_details, name='products_by_category') ,
+
+
 
 
 ]

@@ -2,6 +2,10 @@ from django.shortcuts import render,get_object_or_404
 from .models import Product
 from category.models import Category
 
+
+
+
+
 def store(request,category_slug=None):
     categories = None
     products=None
@@ -16,13 +20,15 @@ def store(request,category_slug=None):
         products = Product.objects.all().filter(is_avilable=True)
         product_count = products.count()
 
-    all_categories = Category.objects.all()
     
     context = {
         'products' : products, 
-        'categories':all_categories,
         'product_count':product_count,
     }
 
     return render(request,'store/store.html',context)
 
+
+
+def product_details(request,category_slug,product_slug):
+    return render(request,'store/product-detail.html')

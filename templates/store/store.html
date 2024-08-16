@@ -32,11 +32,9 @@
                 <div class="card-body">
                     
                     <ul class="list-menu">
-
-                        {%for category in  categories%}
-                    <li><a href="#">{{category.category_name}}  </a></li>
-                  
-
+                        <a class="dropdown-item" href="{% url 'store' %}">All Products </a>
+                        {% for category in links %}
+                        <a class="dropdown-item" href="{{category.get_url}}">{{category.category_name}} </a>
                         {% endfor %}
                     </ul>
     
