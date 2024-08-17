@@ -70,30 +70,33 @@ def remove_cart(request,product_id):
     return redirect('cart')
 
 
-def cart(request, total = 0 , quantity = 0, cart_items = None):
+def cart(request, total = 0 , quantity = 0, total_cart_item = 0, cart_items = None):
     try:
         cart = Cart.objects.get(cart_id = _cart_id(request))
         cart_items = CartItem.objects.filter(cart=cart, is_active = True)
-        
-        for cart_item in cart_items:
+
+
+        for cart_item in cart_items:  
             total += (cart_item.product.price *cart_item.quantity)
             quantity += cart_item.quantity  
-        
+          
         if  total == 0 :
             fee = 0
         else :
             fee = 120 
         grand_total =  total+fee 
-
+      
     except ObjectNotExist: 
         pass
 
+    # return HttpResponse(total_cart_item)
     context = {
         'total': total,
         'quantity':quantity,
         'cart_items': cart_items,
         'fee':fee,
-        'grand_total':grand_total
+        'grand_total':grand_total,
+      
     }
     return render(request,'cart/cart.html',context)
 
