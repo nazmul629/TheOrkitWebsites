@@ -14,25 +14,20 @@ def store(request,category_slug=None):
     if category_slug != None:
         categories = get_object_or_404(Category, slug = category_slug )
         products = Product.objects.filter(category = categories, is_avilable = True)
-
-        # Categoris paginator add 
-        paginator = Paginator(products,4)
-        page = request.GET.get('page')
-        paged_produts = paginator.get_page(page)
-
-        product_count = products.count()
+      
 
     else:
         products = Product.objects.all().filter(is_avilable=True)
+     
 
-        # All product paginator 
-        paginator = Paginator(products,6)
-        page = request.GET.get('page')
-        paged_produts = paginator.get_page(page)
 
-        product_count = products.count()
+    product_count = products.count()
 
-    
+      # product paginator 
+    paginator = Paginator(products,4)
+    page = request.GET.get('page')
+    paged_produts = paginator.get_page(page)
+
     context = {
         'products' : paged_produts, 
         'product_count':product_count,
