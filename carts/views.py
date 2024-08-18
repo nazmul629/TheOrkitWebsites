@@ -86,7 +86,7 @@ def cart(request, total = 0 , quantity = 0, total_cart_item = 0, cart_items = No
             fee = 120 
         grand_total =  total+fee 
       
-    except ObjectNotExist: 
+    except: 
         pass
 
     # return HttpResponse(total_cart_item)
