@@ -19,29 +19,18 @@ def add_cart(request,product_id):
     product = Product.objects.get(id=product_id) #get the product
     product_variation = []
 
-    # traditional 
-    # color = request.POST['color']
-    # size = request.POST['size']
-
-    if request.method == 'POST':
-        #  Dynamic collet multiple atribute
-        
+    if request.method == 'POST': 
         for item in request.POST:
             key = item
             value = request.POST[key]
-   
-            
+
             try:
                 variation = Variation.objects.get(product=product, variation_category__iexact=key, variation_value__iexact=value)
-
-                # product_variation.append(variation)
-                print(variation)
-
+                product_variation.append(variation)
+                # print(product_variation)
+            
             except:
                 pass
-
-
-
     
     try:
         cart = Cart.objects.get(cart_id = _cart_id(request))
@@ -54,6 +43,12 @@ def add_cart(request,product_id):
         cart.save()
     try:
         cart_item = CartItem.objects.get(product=product,cart=cart)
+
+        if len(product_variation) > 0:
+            cart_item.variations.clear()
+            for item in product_variation:
+                cart_item.variations.add(item)
+
         cart_item.quantity +=1 
         cart_item.save()
 
@@ -63,6 +58,12 @@ def add_cart(request,product_id):
             quantity=1,
             cart = cart,
         )
+
+        if len(product_variation) > 0:
+            cart_item.variations.clear()
+            for item in product_variation:
+                cart_item.variations.add(item)
+
         cart_item.save()
     # return HttpResponse(cart_item.quantity)
     # exit()
