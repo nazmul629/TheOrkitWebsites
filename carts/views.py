@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from  store.models import Product
+from  store.models import Product,Variation
 from .models import Cart, CartItem
 from django.http import HttpResponse
 
@@ -16,7 +16,32 @@ def _cart_id(request):
 
 def add_cart(request,product_id):
 
-    product = Product.objects.get(id=product_id)
+    product = Product.objects.get(id=product_id) #get the product
+    product_variation = []
+
+    # traditional 
+    # color = request.POST['color']
+    # size = request.POST['size']
+
+    if request.method == 'POST':
+        #  Dynamic collet multiple atribute
+        
+        for item in request.POST:
+            key = item
+            value = request.POST[key]
+   
+            
+            try:
+                variation = Variation.objects.get(product=product, variation_category__iexact=key, variation_value__iexact=value)
+
+                # product_variation.append(variation)
+                print(variation)
+
+            except:
+                pass
+
+
+
     
     try:
         cart = Cart.objects.get(cart_id = _cart_id(request))
