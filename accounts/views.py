@@ -16,6 +16,7 @@ from django.core.mail import EmailMessage
 from carts.models import Cart,CartItem
 from carts.views import _cart_id
 
+import requests
 
 
 def register(request):
@@ -87,20 +88,64 @@ def  login(request):
             try:  
                 cart = Cart.objects.get(cart_id = _cart_id(request))
                 is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+
+
+                ex_var_list = []
                 if  is_cart_item_exists:
                     cart_item = CartItem.objects.filter(cart=cart)
-                    print(cart_item)
+                    
+                    #Getiing the product variations by cart id 
+                    product_variation = []
                     for item in cart_item:
-                        item.user= user
-                        item.save()
+                        variation = item.variations.all()
+                        product_variation.append(list(variation))
 
+
+                    # Get The cart items from the user to access his porduct variations
+                    
+                    cart_item = CartItem.objects.filter(user=user)
+                    ex_var_list = []
+                    id = []
+
+                    for item in cart_item:
+                        existing_variation = item.variations.all()
+                        ex_var_list.append(list(existing_variation))
+                        id.append(item.id)
+
+                    # now we have    product_variation = [1,3,4,5,5]
+                    # and also we have Ecestig  list = like = [2,3,5,6] 
+                    # now migrate the value of  excesting variatin comon are shoulbe increse and others added to new cart
+                    for pr in product_variation:
+                        if pr in ex_var_list:
+                            index =  ex_var_list.index(pr)
+                            item_id = id[index]
+                            item =  CartItem.objects.get(id=item_id)
+                            item.quantity+=1
+                            item.user = user
+                            item.save()
+                        else:
+                            cart_item = CartItem.objects.filter(cart=cart)
+                            for item in cart_item:
+                                item.user  = user
+                                item.save()
+
+                       
             except:
                 pass 
 
 
             auth.login(request,user)
-            messages.success(request,"you are loged in")
-            return redirect('dashboard')
+            messages.success(request,"You are now loged in")
+            url = request.META.get('HTTP_REFERER')
+            try:
+                quary =  requests.utils.urlparse(url).query
+                pramas = dict(x.split('=') for x in quary.split('&'))
+                if 'next' in pramas:
+                    nextPage =pramas['next']
+                    return redirect(nextPage)
+
+            except:
+                return redirect('dashboard')
         else:
             messages.error(request,"Invalide Login ")
             return redirect('login')
