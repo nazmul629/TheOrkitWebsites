@@ -9,6 +9,7 @@ urlpatterns = [
    path('category/<slug:category_slug>/',store, name='products_by_category') ,
    path('category/<slug:category_slug>/<slug:product_slug>/',product_details, name='product_detail') ,
    path('search/',search,name='search'),
+   path('submit_review/<int:product_id>/',submit_review ,name="submit_review")
 
 
 ]

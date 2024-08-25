@@ -7,6 +7,7 @@ urlpatterns = [
 
    path('place_order/',place_order, name='place_order'), 
    path('payments/',payments, name='payments'), 
+   path('pays/',payments, name="pay")
   
 
 

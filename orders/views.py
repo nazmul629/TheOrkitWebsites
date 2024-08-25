@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from carts.models import CartItem
 from  .forms import OrderForm
-from .models import Order
+from .models import Order,OrderProduct
 from carts import views
 import datetime
 
@@ -16,9 +16,6 @@ def place_order(request, total=0,   fee = 0,  grand_total = 0, quantity=0):
     if cart_count <= 0:
         return redirect('store',total=0, quantity=0)
     
-   
-
-
     for cart_item in cart_items:
         total += (cart_item.product.price * cart_item.quantity)
         quantity += cart_item.quantity
@@ -56,9 +53,10 @@ def place_order(request, total=0,   fee = 0,  grand_total = 0, quantity=0):
             current_date = d.strftime("%Y%m%d")
             order_number = current_date+str(data.id)
             data.order_number= order_number
+            data.is_ordered=True
             data.save()
 
-            order = Order.objects.get(user=current_user,is_ordered=False,order_number=order_number)
+            order = Order.objects.get(user=current_user,order_number=order_number)
             context = {
                 'order':order,
                 'cart_items':cart_items,
@@ -72,6 +70,7 @@ def place_order(request, total=0,   fee = 0,  grand_total = 0, quantity=0):
         return redirect ('dashboard')
 
 
-
 def payments(request):
-    return render(request,'orders/payments.html')
+        #  order_id = Order.objects.get()
+                    
+        return render(request,'orders/payments.html')

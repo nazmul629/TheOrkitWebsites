@@ -16,3 +16,4 @@ admin.site.register(Order,OrderAdmin)# Register your models here.
 admin.site.register(Payment),
 
 admin.site.register(OrderProduct)
+
