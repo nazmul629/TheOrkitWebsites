@@ -28,6 +28,7 @@ def store(request,category_slug=None):
 
     product_count = products.count()
 
+
       # product paginator 
     paginator = Paginator(products,4)
     page = request.GET.get('page')
@@ -50,9 +51,13 @@ def product_details(request,category_slug,product_slug):
 
     except Exception as e :
         raise e 
+    
+    reviews = ReviewRating.objects.filter(product_id = single_product.id, status = True)
+
     context={
         "single_product":single_product,
-        'in_cart':in_cart
+        'in_cart':in_cart,
+        'reviews':reviews,
     }
     return render(request,'store/product-detail.html',context)
 
@@ -98,8 +103,4 @@ def submit_review(request, product_id):
                 messages.success(request,"Thank you , Your review is updated !")
                 return redirect(url)
 
-    
-
-
-     return redirect('product_detail') 
-
+   
