@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
-from .forms import RegistrationForm
-from .models import Account
+from django.shortcuts import render, redirect ,get_object_or_404
+from .forms import RegistrationForm, UserForm, UserProfileForm
+from .models import Account,UserProfile
+from orders.models import OrderProduct
 from carts.models import Cart,CartItem
 from orders.models import Order
 from django.contrib import messages,auth
@@ -165,10 +166,13 @@ def  logout(request):
 @login_required(login_url = "login")
 def dashboard(request):
     orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id,is_ordered=True)
+    userprofile = get_object_or_404(UserProfile,user=request.user)   
+
     order_count = orders.count()
     context = {
         'order_count':order_count,
         'orders':orders,
+        'userprofile':userprofile
         
     }
     return render(request, 'accounts/dashboard.html',context)
@@ -185,6 +189,53 @@ def my_orders(request):
     }
     
     return render(request, 'accounts/my_orders.html',context)
+
+@login_required(login_url = "login")
+def edit_profile(request):  
+    userprofile = get_object_or_404(UserProfile,user=request.user)   
+    if request.method =='POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, "Your profile has been updated")
+            return redirect('edit_profile')
+    else :
+        user_form = UserForm(instance=request.user)
+        profile_form = UserProfileForm(instance=userprofile)
+
+    context = {
+        'profile_form':profile_form,
+        'user_form':user_form,
+        'userprofile':userprofile
+
+    }
+    return render(request, 'accounts/edit_profile.html',context)
+
+@login_required(login_url = "login")
+def update_password(request):  
+    if request.method == 'POST':
+        current_password = request.POST['current_password']
+        update_password = request.POST['update_password']
+        confirm_password = request.POST['confirm_password']
+    
+        user = Account.objects.get(username__exact = request.user.username )
+        if update_password ==confirm_password:
+            success = user.check_password(current_password)
+            if success:
+                user.set_password(update_password)
+                user.save()
+                messages.success(request, "Password successfully updated ")
+                return redirect('dashboard')
+            else:
+                messages.error(request,'Enter the valid cuttent password')
+                return redirect('update_password')
+        else:
+            messages.error(request,"Password  Does not match")
+            return redirect('update_password')
+    return render(request, 'accounts/update_password.html')
 
 
 def forgotPassword(request):
@@ -247,3 +298,19 @@ def resetPassword(request):
 
     else:
         return render(request,'accounts/resetPassword.html')
+    
+@login_required(login_url = "login")
+def order_detail(request, order_id):
+    order_detail = OrderProduct.objects.filter(order__order_number = order_id)
+    order = Order.objects.get(order_number=order_id)
+    subtotal = 0
+    for i in order_detail:
+        subtotal += i.product_price * i.quantity
+
+    context = {
+        'order_detail': order_detail,
+        'order': order,
+        'subtotal': subtotal,
+    }
+
+    return render(request,'accounts/order_detail.html')
