@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm
 from .models import Account
+from carts.models import Cart,CartItem
+from orders.models import Order
 from django.contrib import messages,auth
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -13,7 +15,6 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
-from carts.models import Cart,CartItem
 from carts.views import _cart_id
 
 import requests
@@ -163,7 +164,28 @@ def  logout(request):
 
 @login_required(login_url = "login")
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id,is_ordered=True)
+    order_count = orders.count()
+    context = {
+        'order_count':order_count,
+        'orders':orders,
+        
+    }
+    return render(request, 'accounts/dashboard.html',context)
+
+
+
+
+@login_required(login_url = "login")
+def my_orders(request):
+    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id,is_ordered=True)
+
+    context = {
+        'orders':orders,
+    }
+    
+    return render(request, 'accounts/my_orders.html',context)
+
 
 def forgotPassword(request):
     if request.method == "POST":

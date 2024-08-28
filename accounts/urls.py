@@ -12,5 +12,6 @@ urlpatterns = [
     path('forgotPassword/',forgotPassword,name="forgotPassword"),
     path('reset_password/<uidb64>/<token>/', reset_password_validation, name='reset_password_validation'),
     path('resetPassword/',resetPassword,name="resetPassword"),
+    path('my_orders/',my_orders,name='my_orders')
 
 ]
